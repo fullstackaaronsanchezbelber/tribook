@@ -1,4 +1,3 @@
-// models/apartment.model.js
 const { Schema, model } = require('mongoose');
 
 // Definimos los servicios permitidos
@@ -118,18 +117,17 @@ const apartmentSchema = new Schema({
         type: Number,
         required: [true, 'El número de baños es obligatorio'],
         min: [1, 'Debe haber al menos un baño']
-    },
-    isAvailable: { // Nuevo campo para disponibilidad
-        type: Boolean,
-        default: true
     }
 });
 
 // Validación personalizada para asegurar que solo se incluyan servicios permitidos
-apartmentSchema.path('services').validate(function (value) {
-    const keys = Object.keys(value);
-    return keys.every(key => allowedServices.includes(key));
-}, 'Se ha incluido un servicio no válido');
+apartmentSchema.pre('save', function(next) {
+    const keys = Object.keys(this.services);
+    if (!keys.every(key => allowedServices.includes(key))) {
+        return next(new Error('Se ha incluido un servicio no válido'));
+    }
+    next();
+});
 
 const Apartment = model('Apartment', apartmentSchema);
 
