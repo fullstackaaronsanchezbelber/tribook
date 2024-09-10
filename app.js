@@ -1,5 +1,3 @@
-// app.js
-
 // Importar módulos de terceros
 const express = require('express');
 const morgan = require('morgan');
