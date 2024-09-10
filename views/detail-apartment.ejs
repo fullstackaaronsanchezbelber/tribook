@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
-    <title>Detalle del apartamento</title>
+    <title>Detalle del Apartamento</title>
     <%- include('./partials/head.ejs') %>
+    <link rel="stylesheet" href="/path/to/your/styles.css"> <!-- Asegúrate de tener el CSS -->
 </head>
 
 <body>
@@ -12,40 +13,60 @@
     </header>
     <main class="detail-apartment container">
         <article>
-            <h1>
-                <%= selectedApartment.title %>
-            </h1>
-            <header> <del style="color: rgb(190, 182, 182)">
-                    <%= selectedApartment.price %>
-                </del>
+            <h1><%= selectedApartment.title %></h1>
+            <header>
+                <del style="color: rgb(190, 182, 182)"><%= selectedApartment.price %> €</del>
                 <%= selectedApartment.price * 0.9 %> € por noche
             </header>
-            <img src="<%= selectedApartment.mainPhoto %>" alt="">
-            <div>
-                <%= selectedApartment.description %>
-            </div>
-            <footer>
-                <%= selectedApartment.size %> m<sup>2</sup>
-            </footer>
+            <img src="<%= selectedApartment.mainPhoto %>" alt="Foto del apartamento">
+            <div><%= selectedApartment.description %></div>
+            <h3>Detalles del Apartamento</h3>
+            <ul>
+                <li>Habitaciones: <%= selectedApartment.rooms %></li>
+                <li>Camas: <%= selectedApartment.beds %></li>
+                <li>Baños: <%= selectedApartment.bathrooms %></li>
+                <li>Superficie: <%= selectedApartment.size %> m<sup>2</sup></li>
+                <li>Servicios:
+                    <ul>
+                        <% if (selectedApartment.services.wifi) { %>
+                            <li><i class="icon-wifi"></i> WiFi</li>
+                        <% } %>
+                        <% if (selectedApartment.services.airConditioner) { %>
+                            <li><i class="icon-air-conditioner"></i> Aire Acondicionado</li>
+                        <% } %>
+                        <% if (selectedApartment.services.kitchen) { %>
+                            <li><i class="icon-kitchen"></i> Cocina</li>
+                        <% } %>
+                        <% if (selectedApartment.services.disability) { %>
+                            <li><i class="icon-disability"></i> Accesibilidad</li>
+                        <% } %>
+                        <% if (selectedApartment.services.heater) { %>
+                            <li><i class="icon-heater"></i> Calefacción</li>
+                        <% } %>
+                        <% if (selectedApartment.services.tv) { %>
+                            <li><i class="icon-tv"></i> Televisión</li>
+                        <% } %>
+                    </ul>
+                </li>
+            </ul>
+            <footer>Ubicación: <%= selectedApartment.location.province %>, <%= selectedApartment.location.city %></footer>
         </article>
         <div class="container">
             <% if (isAdmin) { %>
-                <a href="/admin/apartment/<%= selectedApartment._id %>/edit/">Editar apartamento</a>
-                <% } else { %>
-                    <!-- Si no soy adminitrador. TODO: valorar si permitir al admin también hacer reservas -->
-                    <!-- TODO 1. Crear los controles de formulario necesarios para realizar la reserva: EMAIL, FECHA DE INICIO, FECHA DE FIN. Este formulario debería realiar una petición de tipo POST a /apartment/new-reservation. ACORDAOS que hay que pasar el identificador del apartamento en un <input:hidden>. Cómo hacerlo? Mirad la vida new-apartment.ejs -->
-                    <h2>Datos de la reserva</h2>
-                    <form action="/apartment/new-reservation" method="post">
-                        <input type="hidden" name="idApartment" value="<%= selectedApartment._id %>">
-                        <label for="email">Email:</label>
-                        <input type="email" name="email" id="email" required>
-                        <label for="startDate">Fecha de inicio </label>
-                        <input type="date" name="startDate" id="startDate">
-                        <label for="endDate">Fecha de fin</label>
-                        <input type="date" name="endDate" id="endDate">
-                        <input type="submit" value="Reservar">
-                    </form>
-                    <% } %>
+                <a href="/admin/apartment/<%= selectedApartment._id %>/edit/">Editar Apartamento</a>
+            <% } else { %>
+                <h2>Datos de la Reserva</h2>
+                <form action="/apartment/new-reservation" method="post">
+                    <input type="hidden" name="idApartment" value="<%= selectedApartment._id %>">
+                    <label for="email">Email:</label>
+                    <input type="email" name="email" id="email" required>
+                    <label for="startDate">Fecha de Inicio</label>
+                    <input type="date" name="startDate" id="startDate" required>
+                    <label for="endDate">Fecha de Fin</label>
+                    <input type="date" name="endDate" id="endDate" required>
+                    <input type="submit" value="Reservar">
+                </form>
+            <% } %>
         </div>
     </main>
 </body>

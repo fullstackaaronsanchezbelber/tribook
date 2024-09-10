@@ -1,45 +1,34 @@
 // importar el modelo
-const Apartment = require('../models/apartment.model.js');
+const Apartment = require('../models/apartment.model');
 
-
+// Controlador para mostrar el formulario de nuevo apartamento
 const getNewApartmentForm = (req, res) => {
     res.render('new-apartment', {
         apartment: {}
-    })
-}
+    });
+};
 
+// Controlador para mostrar el formulario de edición de un apartamento existente
 const getEditAparmentForm = async (req, res) => {
-    // 1. Recuperar el apartmento identificado por su idApartment de la base de datos
     const { idApartment } = req.params;
-
-    // 2. Ir a la base de datos y obtener el apartamento dada su id
     const apartment = await Apartment.findById(idApartment);
-
-    // 3. Pasar este apartmento a la vista para pre rellenar todos los campos
     res.render('new-apartment', {
         apartment
-    })
-}
+    });
+};
 
+// Controlador para procesar la creación o edición de un apartamento
 const postNewApartment = async (req, res) => {
-
-    // Me han metido más servicios en el req.services que los servicios que yo quiero? kitchen, wifi, etc. res.status(400).send('Ha ocurrido un error');
-
-    // ¿Cómo detecto si estoy añadiendo un apartamento o editando un apartamento? Si lo estoy editando, ya tengo id
     const { id } = req.body;
 
+    // Si hay un ID, actualiza el apartamento
     if (id) {
-        // TODO: Completar
-        // 1. Utlizar el método más adecuado para buscar un documento dado su id y actualizar sus campos a partir del req.body
         await Apartment.findByIdAndUpdate(id, req.body);
-
-        req.flash('success_msg', `Datos del apartamento acutalizados.`);
-
-        // req.get('referer') -> devuelve la ruta en la que ya estabas
+        req.flash('success_msg', `Datos del apartamento actualizados.`);
         return res.redirect(req.get('referer'));
     }
 
-
+    // Si no hay ID, crea un nuevo apartamento
     await Apartment.create({
         title: req.body.title,
         description: req.body.description,
@@ -48,14 +37,12 @@ const postNewApartment = async (req, res) => {
         mainPhoto: req.body.mainPhoto
     });
 
-    req.flash('success_msg', `Apartamento  ${req.body.title} creado correctamente`);
+    req.flash('success_msg', `Apartamento ${req.body.title} creado correctamente`);
     res.redirect('/');
-}
+};
 
-// named exports (expotamos varios recursos, lo hacemos como un objeto)
 module.exports = {
     getNewApartmentForm,
     postNewApartment,
     getEditAparmentForm
-}
-
+};

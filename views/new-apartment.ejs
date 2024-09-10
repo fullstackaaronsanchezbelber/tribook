@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
-    <title>Add New Apartment</title>
+    <title><%= apartment._id ? 'Editar' : 'Añadir Nuevo' %> Apartamento</title>
     <%- include('./partials/head.ejs') %>
 </head>
 
@@ -10,29 +10,83 @@
     <header>
         <%- include('./partials/header.ejs') %>
     </header>
-    <h1>
-        <%= apartment._id? 'Edit' : 'Add New' %> Apartment
-    </h1>
+    <h1><%= apartment._id ? 'Editar' : 'Añadir Nuevo' %> Apartamento</h1>
     <main class="container">
-        <form action="/admin/apartment/new-apartment" method="POST">
+        <form action="/admin/apartment/new-apartment" method="POST" enctype="multipart/form-data">
             <input type="hidden" name="id" id="id" value="<%= apartment._id %>">
+            
+            <!-- Título -->
             <label for="title">Título</label>
+            <input type="text" name="title" id="title" required maxlength="100" value="<%= apartment.title || '' %>">
 
-            <input type="text" name="title" id="title" required maxlength="30" value="<%= apartment.title %>">
+            <!-- Descripción -->
             <label for="description">Descripción</label>
-            <textarea rows="5" name="description" id="description"><%= apartment.description %> </textarea>
-            <!-- TODO: Precargar todos los campos que nos faltan del formulario: price, size, etc.-->
-            <label for="price">Precio por noche</label>
-            <input type="number" name="price" id="price" required min="0" value="<%= apartment.price %>">
-            <label for="size">M <sup>2</sup></label>
-            <input type="number" name="size" id="size" required min="0" value="<%= apartment.size %>">
-            <label for="mainPhoto">Foto principal</label>
-            <input type="url" name="mainPhoto" id="mainPhoto" required value="<%= apartment.mainPhoto  %>">
-            <!-- TODO: Añadir nuevo cuando estemos en añadir apartmento. Pero al editar apartamento debería leerse "Guardar cambios"-->
-            <input type="submit" value="<%= apartment._id? 'Guardar Cambios': 'Añadir nuevo' %>">
+            <textarea rows="5" name="description" id="description" required><%= apartment.description || '' %></textarea>
+
+            <!-- Normas -->
+            <label for="normas">Normas de Uso</label>
+            <textarea rows="4" name="normas" id="normas" required><%= apartment.normas || '' %></textarea>
+
+            <!-- Número de Habitaciones -->
+            <label for="habitaciones">Número de Habitaciones</label>
+            <input type="number" name="habitaciones" id="habitaciones" required min="1" value="<%= apartment.habitaciones || '' %>">
+
+            <!-- Número de Camas -->
+            <label for="camas">Número de Camas</label>
+            <input type="number" name="camas" id="camas" required min="1" value="<%= apartment.camas || '' %>">
+
+            <!-- Número de Baños -->
+            <label for="banos">Número de Baños</label>
+            <input type="number" name="banos" id="banos" required min="1" value="<%= apartment.banos || '' %>">
+
+            <!-- Fotografías -->
+            <label for="fotos">Fotografías del Apartamento (Máximo 4)</label>
+            <input type="file" name="fotos" id="fotos" multiple accept="image/*" <%= apartment._id ? '' : 'required' %>>
+            
+            <!-- Descripción de las Fotografías -->
+            <label for="descripcionesFotos">Descripción de las Fotografías (separadas por comas)</label>
+            <input type="text" name="descripcionesFotos" id="descripcionesFotos" value="<%= apartment.descripcionesFotos || '' %>">
+
+            <!-- Foto Principal -->
+            <label for="fotoPrincipal">Número de la Foto Principal (1-4)</label>
+            <input type="number" name="fotoPrincipal" id="fotoPrincipal" required min="1" max="4" value="<%= apartment.fotoPrincipal || '' %>">
+
+            <!-- Precio por noche -->
+            <label for="price">Precio por Noche (€)</label>
+            <input type="number" name="price" id="price" required min="0" step="0.01" value="<%= apartment.price || '' %>">
+
+            <!-- Superficie (m²) -->
+            <label for="size">Superficie (m<sup>2</sup>)</label>
+            <input type="number" name="size" id="size" required min="0" value="<%= apartment.size || '' %>">
+
+            <!-- Máximo de Personas -->
+            <label for="maxPersonas">Número Máximo de Personas</label>
+            <input type="number" name="maxPersonas" id="maxPersonas" required min="1" value="<%= apartment.maxPersonas || '' %>">
+
+            <!-- Servicios -->
+            <h3>Servicios</h3>
+            <label><input type="checkbox" name="servicios[]" value="Aire Acondicionado" <%= apartment.servicios && apartment.servicios.includes('Aire Acondicionado') ? 'checked' : '' %>> Aire Acondicionado</label><br>
+            <label><input type="checkbox" name="servicios[]" value="Calefacción" <%= apartment.servicios && apartment.servicios.includes('Calefacción') ? 'checked' : '' %>> Calefacción</label><br>
+            <label><input type="checkbox" name="servicios[]" value="Accesibilidad" <%= apartment.servicios && apartment.servicios.includes('Accesibilidad') ? 'checked' : '' %>> Adaptado para Personas con Movilidad Reducida</label><br>
+            <label><input type="checkbox" name="servicios[]" value="Televisión" <%= apartment.servicios && apartment.servicios.includes('Televisión') ? 'checked' : '' %>> Televisión</label><br>
+            <label><input type="checkbox" name="servicios[]" value="Cocina" <%= apartment.servicios && apartment.servicios.includes('Cocina') ? 'checked' : '' %>> Cocina</label><br>
+            <label><input type="checkbox" name="servicios[]" value="Internet" <%= apartment.servicios && apartment.servicios.includes('Internet') ? 'checked' : '' %>> Conexión a Internet</label><br>
+
+            <!-- Ubicación -->
+            <h3>Ubicación</h3>
+            <label for="provincia">Provincia</label>
+            <input type="text" name="provincia" id="provincia" required value="<%= apartment.ubicacion?.provincia || '' %>">
+            
+            <label for="ciudad">Ciudad</label>
+            <input type="text" name="ciudad" id="ciudad" required value="<%= apartment.ubicacion?.ciudad || '' %>">
+            
+            <label for="gps">Coordenadas GPS (Latitud, Longitud)</label>
+            <input type="text" name="gps" id="gps" required value="<%= apartment.ubicacion?.gps || '' %>">
+
+            <!-- Botón de Enviar -->
+            <input type="submit" value="<%= apartment._id ? 'Guardar Cambios' : 'Añadir Nuevo' %>">
         </form>
     </main>
-
 </body>
 
 </html>

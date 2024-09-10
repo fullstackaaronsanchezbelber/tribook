@@ -1,0 +1,1 @@
+npm install express morgan mongoose express-session connect-flash dotenv ejs

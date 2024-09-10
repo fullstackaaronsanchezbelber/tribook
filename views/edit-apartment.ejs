@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editar Apartamento</title>
+</head>
+<body>
+    <h1>Editar Apartamento</h1>
+    <form action="/admin/apartment/<%= apartment._id %>/edit" method="POST">
+        <label for="title">Título:</label>
+        <input type="text" id="title" name="title" value="<%= apartment.title %>" required><br>
+
+        <label for="description">Descripción:</label>
+        <textarea id="description" name="description" required><%= apartment.description %></textarea><br>
+
+        <label for="price">Precio:</label>
+        <input type="number" id="price" name="price" value="<%= apartment.price %>" min="0" step="0.01" required><br>
+
+        <label for="size">Tamaño:</label>
+        <input type="number" id="size" name="size" value="<%= apartment.size %>" min="0" step="0.01" required><br>
+
+        <label for="mainPhoto">Foto Principal:</label>
+        <input type="url" id="mainPhoto" name="mainPhoto" value="<%= apartment.mainPhoto %>" required><br>
+
+        <label for="services">Servicios:</label><br>
+        <label><input type="checkbox" name="services[wifi]" <%= apartment.services.wifi ? 'checked' : '' %>> Wifi</label><br>
+        <label><input type="checkbox" name="services[airConditioner]" <%= apartment.services.airConditioner ? 'checked' : '' %>> Aire Acondicionado</label><br>
+        <label><input type="checkbox" name="services[kitchen]" <%= apartment.services.kitchen ? 'checked' : '' %>> Cocina</label><br>
+        <label><input type="checkbox" name="services[disability]" <%= apartment.services.disability ? 'checked' : '' %>> Accesibilidad</label><br>
+        <label><input type="checkbox" name="services[heater]" <%= apartment.services.heater ? 'checked' : '' %>> Calefacción</label><br>
+        <label><input type="checkbox" name="services[tv]" <%= apartment.services.tv ? 'checked' : '' %>> Televisión</label><br>
+
+        <label for="location.province">Provincia:</label>
+        <input type="text" id="location.province" name="location.province" value="<%= apartment.location.province %>" required><br>
+
+        <label for="location.city">Ciudad:</label>
+        <input type="text" id="location.city" name="location.city" value="<%= apartment.location.city %>" required><br>
+
+        <label for="coordinates.lat">Latitud:</label>
+        <input type="number" id="coordinates.lat" name="coordinates.lat" value="<%= apartment.location.coordinates.lat %>" step="0.0001" required><br>
+
+        <label for="coordinates.lng">Longitud:</label>
+        <input type="number" id="coordinates.lng" name="coordinates.lng" value="<%= apartment.location.coordinates.lng %>" step="0.0001" required><br>
+
+        <label for="isAvailable">Disponible:</label>
+        <select id="isAvailable" name="isAvailable">
+            <option value="true" <%= apartment.isAvailable ? 'selected' : '' %>>Sí</option>
+            <option value="false" <%= !apartment.isAvailable ? 'selected' : '' %>>No</option>
+        </select><br>
+
+        <button type="submit">Actualizar Apartamento</button>
+    </form>
+</body>
+</html>

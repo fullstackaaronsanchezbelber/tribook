@@ -1,22 +1,24 @@
-// Rutas "públicas" de la app
+// routes/index.js
 const express = require('express');
 const router = express.Router();
-
-// importamos todos los controladores de controllers/index.js
 const indexControllers = require('../controllers/index.js');
 
-// Router funciona igual que el "app" para crear los endpoints. Nos permite definir un conjunto arbitrario de rutas
+// Ruta para mostrar todos los apartamentos
 router.get('/', indexControllers.getApartments);
 
-// Paso 2 Buscar apartamentos: Crear una nueva ruta al endpoint /search . Debe ejecutar el controlador indexControllers.searchApartments
+// Ruta para buscar apartamentos por diferentes criterios
 router.get('/search', indexControllers.searchApartments);
 
-// ruta dinámica para detalle del apartamento
+// Ruta para ver el detalle de un apartamento específico
 router.get('/apartment/:idApartment', indexControllers.getApartmentById);
 
-// Pedir una nueva reserva
+// Ruta para procesar nuevas reservas
 router.post('/apartment/new-reservation', indexControllers.postNewReservation);
 
+// Ruta para mostrar el formulario de edición de un apartamento
+router.get('/admin/apartment/:idApartment/edit', indexControllers.getEditApartmentForm);
 
-// Tenemos que exportar estas rutas para que sean usadas en app.js
+// Ruta para procesar la actualización de un apartamento
+router.post('/admin/apartment/:idApartment/edit', indexControllers.updateApartment);
+
 module.exports = router;

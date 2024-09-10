@@ -1,17 +1,17 @@
 // Rutas de administrador
-
-// Rutas "públicas" de la app
 const express = require('express');
 const router = express.Router();
 
-// importar todos los controladores de controllers/admin.js
-
-// Crear primer endpoint de administrador que es el que nos permite mostrar un formulario para añadir un nuevo apartamento
+// importar controladores
 const adminControllers = require('../controllers/admin.js');
-const indexControllers = require('../controllers/index.js')
 
+// Ruta para mostrar el formulario para añadir un nuevo apartamento
 router.get('/apartment/new-apartment', adminControllers.getNewApartmentForm);
+
+// Ruta para manejar el POST del formulario de añadir o editar apartamento
 router.post('/apartment/new-apartment', adminControllers.postNewApartment);
-router.get('/apartment/:idApartment/edit', adminControllers.getEditAparmentForm)
+
+// Ruta para mostrar el formulario de edición de un apartamento específico
+router.get('/apartment/:idApartment/edit', adminControllers.getEditAparmentForm);
 
 module.exports = router;

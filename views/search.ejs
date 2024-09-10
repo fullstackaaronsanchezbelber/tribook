@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Buscar Apartamentos</title>
+    <%- include('./partials/head.ejs') %>
+</head>
+
+<body>
+    <header>
+        <%- include('./partials/header.ejs') %>
+    </header>
+    <main class="search container">
+        <h1>Buscar Apartamentos</h1>
+        <form action="/search" method="get">
+            <label for="minGuests">Capacidad mínima:</label>
+            <input type="number" name="minGuests" id="minGuests" min="1">
+
+            <label for="maxPrice">Precio máximo por noche:</label>
+            <input type="number" name="maxPrice" id="maxPrice" min="0" step="0.01">
+
+            <label for="city">Ciudad:</label>
+            <input type="text" name="city" id="city">
+
+            <label for="startDate">Fecha de Inicio:</label>
+            <input type="date" name="startDate" id="startDate">
+
+            <label for="endDate">Fecha de Fin:</label>
+            <input type="date" name="endDate" id="endDate">
+
+            <button type="submit">Buscar</button>
+        </form>
+        <hr>
+        <h2>Resultados de la Búsqueda</h2>
+        <% if (apartments.length > 0) { %>
+            <ul>
+                <% apartments.forEach(apartment => { %>
+                    <li>
+                        <h3><%= apartment.title %></h3>
+                        <p>Precio por noche: <%= apartment.price %> €</p>
+                        <p>Capacidad máxima: <%= apartment.maxGuests %> personas</p>
+                        <p>Ciudad: <%= apartment.location.city %></p>
+                        <a href="/apartment/<%= apartment._id %>">Ver detalles</a>
+                    </li>
+                <% }) %>
+            </ul>
+        <% } else { %>
+            <p>No se encontraron apartamentos que coincidan con los criterios.</p>
+        <% } %>
+    </main>
+</body>
+
+</html>

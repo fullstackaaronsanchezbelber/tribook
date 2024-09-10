@@ -1,76 +1,154 @@
-/** Crear un conjunto de funciones que van a dar respuesta a nuestras rutas  */
-const mongoose = require('mongoose');
+// controllers/index.js
+const Apartment = require('../models/apartment.model');
+const Reservation = require('../models/reservation.model');
 
-// Importamos el modelo
-const Apartment = require('../models/apartment.model.js');
-const Reservation = require('../models/reservation.model.js');
-
+// Controlador para obtener y mostrar todos los apartamentos
 const getApartments = async (req, res) => {
-
-    // Obtenemos todos los apartamentos de la base de datos
-    const apartments = await Apartment.find();
-    console.log(res.locals.success_msg)
-
-    res.render('home', {
-        apartments,
-
-    });
-}
-
-const getApartmentById = async (req, res) => {
-    // 1. Voy al modelo para obtener el apartamento dado su id
-    const { idApartment } = req.params;
-
-    const selectedApartment = await Apartment.findById(idApartment);
-
-    res.render('detail-apartment', {
-        selectedApartment
-    });
+    try {
+        const apartments = await Apartment.find();
+        res.render('apartments-list', { apartments });
+    } catch (error) {
+        console.error('Error al obtener los apartamentos:', error);
+        res.status(500).send('Error al obtener los apartamentos');
+    }
 };
 
+// Controlador para obtener y mostrar un apartamento específico
+const getApartmentById = async (req, res) => {
+    try {
+        const { idApartment } = req.params;
+        const selectedApartment = await Apartment.findById(idApartment);
+        if (!selectedApartment) {
+            return res.status(404).send('Apartamento no encontrado');
+        }
+        res.render('detail-apartment', { selectedApartment });
+    } catch (error) {
+        console.error('Error al obtener el apartamento:', error);
+        res.status(500).send('Error al obtener el apartamento');
+    }
+};
+
+// Controlador para buscar apartamentos por diferentes criterios
 const searchApartments = async (req, res) => {
+    const { maxPrice, minGuests, city, startDate, endDate } = req.query;
 
-    // PAso 3 buscar apartamentos. Parsear la query string que recibo del formulario
-    const { maxPrice } = req.query;
+    let query = {};
 
+    if (maxPrice) {
+        query.price = { $lte: maxPrice };
+    }
 
-    // Obtener del modelo todos los apartamentos cuyo precio sea menor que el precio maximo que el usuairo está dispuesto a pagar
+    if (minGuests) {
+        query.maxGuests = { $gte: minGuests };
+    }
 
-    // Pasarle estos apartamentos ya filtrados a la vista
-    const apartments = await Apartment.find({ price: { $lte: maxPrice } });
-    res.render('home', {
-        apartments
-    });
-}
+    if (city) {
+        query['location.city'] = city;
+    }
 
+    try {
+        let apartments = await Apartment.find(query);
+
+        if (startDate && endDate) {
+            const reservations = await Reservation.find({
+                startDate: { $lte: new Date(endDate) },
+                endDate: { $gte: new Date(startDate) }
+            }).populate('apartment');
+
+            const unavailableApartmentIds = reservations.map(reservation => reservation.apartment._id);
+            apartments = apartments.filter(apartment => !unavailableApartmentIds.includes(apartment._id));
+        }
+
+        res.render('apartments-list', { apartments });
+    } catch (error) {
+        console.error('Error al buscar los apartamentos:', error);
+        res.status(500).send('Error al buscar los apartamentos');
+    }
+};
+
+// Controlador para procesar una nueva reserva
 const postNewReservation = async (req, res) => {
-    // 1. Es una petición tipo POST-> desestructurar el req.body y obtener todos los datos de la reserva
-    const { email, startDate, endDate, idApartment } = req.body;
+    try {
+        const { email, startDate, endDate, idApartment } = req.body;
 
-    // 2A. DAdo el id del apartmento,  recuperar el Apartment de la colección. Luego crear la reserva Reservation.create() pasandole el apartamento que acabamos de recuperar
-    const apartment = await Apartment.findById(idApartment);
-    const newReservation = await Reservation.create({
-        email,
-        startDate,
-        endDate,
-        apartment
-    });
+        // Verificar que las fechas son válidas
+        if (new Date(startDate) >= new Date(endDate)) {
+            return res.status(400).send('La fecha de fin debe ser posterior a la fecha de inicio');
+        }
 
+        // Buscar el apartamento
+        const apartment = await Apartment.findById(idApartment);
+        if (!apartment) {
+            return res.status(404).send('Apartamento no encontrado');
+        }
 
-    // 2B. Crear directamente la reserva con Reservation.create() y establecer el campo apartment, que de tipo ObjectID, con el identificador del apartamento recuperado del formulario
-    // const newReservation = await Reservation.create({
-    //     email,
-    //     startDate,
-    //     endDate,
-    //     apartment: new mongoose.Types.ObjectId(idApartment)
-    // });
-    // 3. Podemos contestar con algun tipo mensaje al usuario sobre la reservada creada
-    res.json(newReservation);
+        // Verificar la disponibilidad del apartamento
+        const overlappingReservations = await Reservation.find({
+            apartment: idApartment,
+            startDate: { $lt: new Date(endDate) },
+            endDate: { $gte: new Date(startDate) }
+        });
+
+        if (overlappingReservations.length > 0) {
+            return res.status(400).send('El apartamento no está disponible entre las fechas seleccionadas');
+        }
+
+        // Crear la nueva reserva
+        const newReservation = await Reservation.create({
+            email,
+            startDate,
+            endDate,
+            apartment: idApartment
+        });
+
+        res.json(newReservation);
+    } catch (error) {
+        console.error('Error al crear la reserva:', error);
+        res.status(500).send('Error al crear la reserva');
+    }
+};
+
+// Controlador para mostrar el formulario de edición de un apartamento
+const getEditApartmentForm = async (req, res) => {
+    try {
+        const { idApartment } = req.params;
+        const apartment = await Apartment.findById(idApartment);
+        if (!apartment) {
+            return res.status(404).send('Apartamento no encontrado');
+        }
+        res.render('edit-apartment', { apartment });
+    } catch (error) {
+        console.error('Error al obtener el formulario de edición:', error);
+        res.status(500).send('Error al obtener el formulario de edición');
+    }
+};
+
+// Controlador para actualizar un apartamento
+const updateApartment = async (req, res) => {
+    try {
+        const { idApartment } = req.params;
+        const updatedData = req.body;
+        const apartment = await Apartment.findById(idApartment);
+        if (!apartment) {
+            return res.status(404).send('Apartamento no encontrado');
+        }
+
+        // Actualizar los datos del apartamento
+        Object.assign(apartment, updatedData);
+        await apartment.save();
+
+        res.redirect(`/apartment/${idApartment}`);
+    } catch (error) {
+        console.error('Error al actualizar el apartamento:', error);
+        res.status(500).send('Error al actualizar el apartamento');
+    }
 };
 
 module.exports = {
     getApartments,
     getApartmentById,
     searchApartments,
-    postNewReservation
-}
+    postNewReservation,
+    getEditApartmentForm,
+    updateApartment
+};

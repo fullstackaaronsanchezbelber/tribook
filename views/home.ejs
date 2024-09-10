@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <title>Tribook Apartments</title>
-    <!-- Indica que hacemos la petición GET a la raíz del servidor -->
     <%- include('./partials/head.ejs') %>
 </head>
 
@@ -12,30 +11,24 @@
         <%- include('./partials/header.ejs') %>
     </header>
     <main class="container">
-        <h1>Home Page</h1>
-        <!-- Paso 1 BUSCAR: Añadir un formulario para realizar la búsqueda por precio máximo. este <form> que valor tiene el atributo method? GET . Qué valor tendrá el atributo "action"? /search -->
-        <form class="container" action="/search">
-            <label for="maxPrice">Precio máximo por noche</label>
+        <h1>Página Principal</h1>
+        <form class="container" action="/search" method="GET">
+            <label for="maxPrice">Precio Máximo por Noche</label>
             <input type="number" name="maxPrice" id="maxPrice" min="0" max="1000000">
             <input type="submit" value="Filtrar">
         </form>
         <div class="container apartments">
-            <% for (const ap of apartments) { %>
+            <% apartments.forEach(ap => { %>
                 <a href="/apartment/<%= ap._id %>">
                     <article class="apartment">
-                        <header>
-                            <%= ap.title %>
-                        </header>
+                        <header><%= ap.title %></header>
                         <div><img src="<%= ap.mainPhoto %>" alt=""></div>
-                        <footer>
-                            <%= ap.price %> € por noche
-                        </footer>
+                        <footer><%= ap.price %> € por noche</footer>
                     </article>
                 </a>
-                <% } %>
+            <% }) %>
         </div>
     </main>
-
 </body>
 
 </html>

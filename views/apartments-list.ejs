@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Lista de Apartamentos</title>
+    <%- include('./partials/head.ejs') %>
+    <link rel="stylesheet" href="/css/apartments.css">
+</head>
+
+<body>
+    <header>
+        <%- include('./partials/header.ejs') %>
+    </header>
+    <main class="container">
+        <h1>Apartamentos Disponibles</h1>
+        <div class="apartments-list">
+            <% apartments.forEach(apartment => { %>
+                <div class="apartment-card">
+                    <img src="<%= apartment.mainPhoto %>" alt="Foto del apartamento <%= apartment.title %>">
+                    <h2><%= apartment.title %></h2>
+                    <p>Precio: <%= apartment.price %> € por noche</p>
+                    <p>Superficie: <%= apartment.size %> m<sup>2</sup></p>
+                    <div class="services">
+                        <h3>Servicios:</h3>
+                        <ul>
+                            <% if (apartment.services.includes('Internet')) { %>
+                                <li><i class="fas fa-wifi"></i> Wifi</li>
+                            <% } %>
+                            <% if (apartment.services.includes('Aire Acondicionado')) { %>
+                                <li><i class="fas fa-wind"></i> Aire Acondicionado</li>
+                            <% } %>
+                            <% if (apartment.services.includes('Cocina')) { %>
+                                <li><i class="fas fa-utensils"></i> Cocina</li>
+                            <% } %>
+                            <% if (apartment.services.includes('Accesibilidad')) { %>
+                                <li><i class="fas fa-wheelchair"></i> Accesibilidad</li>
+                            <% } %>
+                            <% if (apartment.services.includes('Calefacción')) { %>
+                                <li><i class="fas fa-thermometer-half"></i> Calefacción</li>
+                            <% } %>
+                            <% if (apartment.services.includes('Televisión')) { %>
+                                <li><i class="fas fa-tv"></i> Televisión</li>
+                            <% } %>
+                        </ul>
+                    </div>
+                    <a href="/apartment/<%= apartment._id %>" class="btn">Ver Detalles</a>
+                </div>
+            <% }) %>
+        </div>
+    </main>
+    <footer>
+        <%- include('./partials/footer.ejs') %>
+    </footer>
+</body>
+
+</html>
