@@ -121,9 +121,10 @@ const apartmentSchema = new Schema({
 });
 
 // Validación personalizada para asegurar que solo se incluyan servicios permitidos
-apartmentSchema.pre('save', function(next) {
-    const keys = Object.keys(this.services);
-    if (!keys.every(key => allowedServices.includes(key))) {
+apartmentSchema.pre('validate', function(next) {
+    // Validar si los servicios proporcionados están dentro de los servicios permitidos
+    const serviceKeys = Object.keys(this.services);
+    if (!serviceKeys.every(key => allowedServices.includes(key))) {
         return next(new Error('Se ha incluido un servicio no válido'));
     }
     next();
