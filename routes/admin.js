@@ -13,6 +13,9 @@ router.post('/apartment/new-apartment', adminControllers.postNewApartment);
 // Ruta para mostrar el formulario de edición de un apartamento específico
 router.get('/apartment/:idApartment/edit', adminControllers.getEditApartmentForm);
 
+// Ruta para POST el formulario de edición de un apartamento específico
+router.post('/apartment/:idApartment/edit', adminControllers.postEditApartmentForm);
+
 // Ruta para listar apartamentos
 router.get('/', adminControllers.listApartments);
 
