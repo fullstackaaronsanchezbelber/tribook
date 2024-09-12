@@ -1,4 +1,4 @@
-// importar el modelo
+// Importar los modelos
 const Apartment = require('../models/apartment.model');
 const Reservation = require('../models/reservation.model');
 
@@ -29,12 +29,12 @@ const getEditApartmentForm = async (req, res) => {
 
 // Controlador para procesar la creación o edición de un apartamento
 const postNewApartment = async (req, res) => {
+    console.log('AQUIII', req.body);
     try {
         const { id } = req.body;
-        const services = req.body.services || {};
-        const location = req.body.location || {};
-        const coordinates = location.coordinates || {};
-
+        const services = req.body.servicios || []; // Array de servicios
+        const gps = req.body.gps ? req.body.gps.split(',') : [0, 0]; // Array de coordenadas
+        
         const apartmentData = {
             title: req.body.title,
             description: req.body.description,
@@ -42,32 +42,33 @@ const postNewApartment = async (req, res) => {
             price: req.body.price,
             size: req.body.size,
             mainPhoto: req.body.mainPhoto,
-            photos: req.body.photos || [],  // Array de fotos adicionales
-            maxGuests: req.body.maxGuests || 1,
-            rooms: req.body.rooms || 1,
-            beds: req.body.beds || 1,
-            bathrooms: req.body.bathrooms || 1,
+            photos: req.body.descripcionesFotos ? req.body.descripcionesFotos.split(',').map(photo => ({ url: '', description: photo.trim() })) : [],  // Fotos adicionales
+            maxGuests: req.body.maxPersonas || 1, // maxGuests es maxPersonas
+            rooms: req.body.habitaciones || 1, // rooms es habitaciones
+            beds: req.body.camas || 1, // beds es camas
+            bathrooms: req.body.banos || 1, // bathrooms es banos
             services: {
-                wifi: services.wifi || false,
-                airConditioner: services.airConditioner || false,
-                kitchen: services.kitchen || false,
-                disability: services.disability || false,
-                heater: services.heater || false,
-                tv: services.tv || false
+                wifi: services.includes('Wifi'),
+                airConditioner: services.includes('Aire Acondicionado'),
+                kitchen: services.includes('Cocina'),
+                disability: services.includes('Accesibilidad'),
+                heater: services.includes('Calefacción'),
+                tv: services.includes('TV')
             },
             location: {
-                province: location.province || '',
-                city: location.city || '',
+                province: req.body.provincia || '',
+                city: req.body.city || '',
                 coordinates: {
-                    lat: coordinates.lat || 0,
-                    lng: coordinates.lng || 0
+                    lat: parseFloat(gps[0]) || 0,
+                    lng: parseFloat(gps[1]) || 0
                 }
             }
         };
 
         // Validación de los campos requeridos
-        if (!apartmentData.title || !apartmentData.description || !apartmentData.price || !apartmentData.size || !apartmentData.mainPhoto || !apartmentData.location.city || !apartmentData.location.province) {
+        if (!apartmentData.title || !apartmentData.description || !apartmentData.price || !apartmentData.size || !apartmentData.mainPhoto) {
             req.flash('error_msg', 'Por favor, completa todos los campos requeridos.');
+            console.log('Error en los campos requeridos:', apartmentData);
             return res.redirect(req.get('referer'));
         }
 
@@ -78,11 +79,13 @@ const postNewApartment = async (req, res) => {
         } else {
             // Si no hay ID, crea un nuevo apartamento
             await Apartment.create(apartmentData);
-            req.flash('success_msg', `Apartamento ${req.body.title} creado correctamente`);
+            console.log('Apartamento creado:', apartmentData);
+            req.flash('success_msg', `Apartamento ${req.body.title} creado correctamente.`);
         }
 
         res.redirect('/');
     } catch (err) {
+        console.error('Error al procesar el apartamento:', err);
         req.flash('error_msg', 'Hubo un error al procesar el apartamento.');
         res.redirect('/');
     }
@@ -141,7 +144,7 @@ const makeReservation = async (req, res) => {
 
         if (!apartment) {
             req.flash('error_msg', 'Apartamento no encontrado.');
-            return res.redirect('/');
+            return res.redirect('/'); // Redirigir a la página principal si no se encuentra el apartamento
         }
 
         // Verificar si hay una reserva existente que coincida con las fechas
@@ -170,7 +173,7 @@ const makeReservation = async (req, res) => {
         res.redirect('/');
     } catch (err) {
         req.flash('error_msg', 'Error al procesar la reserva.');
-        res.redirect('/');
+        res.redirect('/'); // Redirigir a la página principal en caso de error
     }
 };
 
